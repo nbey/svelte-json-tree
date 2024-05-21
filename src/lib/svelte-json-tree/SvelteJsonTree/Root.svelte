@@ -11,6 +11,7 @@
   export let defaultExpandedPaths: string[] = [];
   export let defaultExpandedLevel: number = 0;
 
+  $: expandable = value && typeof value === 'object'
   $: shouldExpandNode = getShouldExpandNode({ defaultExpandedPaths, defaultExpandedLevel });
 
   const expanded = writable(true);
@@ -26,14 +27,20 @@
   });
 </script>
 
-<ul>
-  <Expandable key="$" {expanded}>
+<div class:expandable>
+  {#if expandable}
+    <Expandable key="$" {expanded}>
+      <JSONNode {value} />
+    </Expandable>
+  {:else if typeof value === 'string'}
+    <span>{value}</span>
+  {:else}
     <JSONNode {value} />
-  </Expandable>
-</ul>
+  {/if}
+</div>
 
 <style>
-  ul {
+  div {
     --string-color: var(--json-tree-string-color, #cb3f41);
     --symbol-color: var(--json-tree-symbol-color, #cb3f41);
     --boolean-color: var(--json-tree-boolean-color, #112aa7);
@@ -53,33 +60,33 @@
     font-size: var(--json-tree-font-size, 12px);
     font-family: var(--json-tree-font-family, 'Courier New', Courier, monospace);
   }
-  ul :global(li) {
+  div :global(li) {
     line-height: var(--li-line-height);
     display: var(--li-display, list-item);
     list-style: none;
   }
-  ul,
-  ul :global(ul) {
+  div,
+  div :global(ul) {
     padding: 0;
     margin: 0;
   }
 
-  ul {
+  .expandable {
     margin-left: var(--li-identation);
   }
-  ul {
+  div {
     cursor: default;
   }
-  ul :global(.label) {
+  div :global(.label) {
     color: var(--label-color);
   }
-  ul :global(.property) {
+  div :global(.property) {
     color: var(--property-color);
   }
-  ul :global(.internal) {
+  div :global(.internal) {
     color: var(--internal-color);
   }
-  ul :global(.operator) {
+  div :global(.operator) {
     color: var(--operator-color);
   }
 </style>
