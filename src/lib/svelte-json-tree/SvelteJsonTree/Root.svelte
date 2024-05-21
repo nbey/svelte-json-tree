@@ -89,4 +89,7 @@
   div :global(.operator) {
     color: var(--operator-color);
   }
+  span {
+    white-space: pre-wrap;
+  }
 </style>
