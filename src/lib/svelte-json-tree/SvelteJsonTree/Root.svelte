@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { setContext } from 'svelte';
   import JSONNode from './JSONNode.svelte';
   import Expandable from './Expandable.svelte';
   import { getShouldExpandNode } from './utils/expand';
