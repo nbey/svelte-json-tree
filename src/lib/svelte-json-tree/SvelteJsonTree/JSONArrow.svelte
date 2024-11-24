@@ -1,8 +1,13 @@
 <script lang="ts">
-  import { useState } from './utils/context';
+  import { getContext } from 'svelte';
 
-  const { expanded: _expanded, expandable } = useState();
-  export let expanded = _expanded;
+  type JsonViewerContext = {
+    expanded: boolean;
+    expandable: boolean;
+  };
+
+  const context = getContext<JsonViewerContext>('jsonViewer');
+  const { expanded, expandable } = context;
 </script>
 
 {#if $expandable}
