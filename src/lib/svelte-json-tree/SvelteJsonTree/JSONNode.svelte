@@ -6,39 +6,42 @@
   import JSONValueNode from './JSONValueNode.svelte';
   import ErrorNode from './ErrorNode.svelte';
   import objType from './utils/objType';
-  import { writable } from 'svelte/store';
   import JsonStringNode from './JSONStringNode.svelte';
   import JsonFunctionNode from './JSONFunctionNode.svelte';
   import JsonSvelteStoreNode from './JSONSvelteStoreNode.svelte';
   import TypedArrayNode from './TypedArrayNode.svelte';
   import RegExpNode from './RegExpNode.svelte';
-  import { useState } from './utils/context';
+  import { getContext } from 'svelte';
 
+  // Props
   export let value: unknown;
-  const nodeType = writable<string>();
-  const { shouldTreatIterableAsObject } = useState();
 
-  $: $nodeType = objType(value, shouldTreatIterableAsObject);
-  $: [componentType, props] = getComponentAndProps($nodeType, value);
+  // State using new runes syntax
+  let nodeType = $state('');
+  const { shouldTreatIterableAsObject } = getContext<{ shouldTreatIterableAsObject: boolean }>('jsonViewer');
 
-  function getComponentAndProps(nodeType: string, value: any) {
+  // Derived values using new $ syntax
+  $: nodeType = objType(value, shouldTreatIterableAsObject);
+  $: [componentType, props] = getComponentAndProps(nodeType, value);
+
+  function getComponentAndProps(nodeType: string, value: any): [any, Record<string, any>?] {
     switch (nodeType) {
       case 'Object':
-        if (typeof value.subscribe === 'function') return [JsonSvelteStoreNode];
-        return [JSONObjectNode];
+        if (typeof value.subscribe === 'function') return [JsonSvelteStoreNode, {}];
+        return [JSONObjectNode, {}];
       case 'Error':
-        return [ErrorNode];
+        return [ErrorNode, {}];
       case 'Array':
-        return [JSONArrayNode];
+        return [JSONArrayNode, {}];
       case 'Map':
-        return [JSONIterableMapNode];
+        return [JSONIterableMapNode, {}];
       case 'Iterable':
       case 'Set':
         return [JSONIterableArrayNode, { nodeType }];
       case 'Number':
         return [JSONValueNode, { nodeType }];
       case 'String':
-        return [JsonStringNode];
+        return [JsonStringNode, {}];
       case 'Boolean':
         return [JSONValueNode, { nodeType, value: value ? 'true' : 'false' }];
       case 'Date':
@@ -51,7 +54,7 @@
       case 'AsyncFunction':
       case 'AsyncGeneratorFunction':
       case 'GeneratorFunction':
-        return [JsonFunctionNode];
+        return [JsonFunctionNode, {}];
       case 'Symbol':
         return [JSONValueNode, { nodeType, value: value.toString() }];
       case 'BigInt':
@@ -71,7 +74,7 @@
       case 'Uint32Array':
         return [TypedArrayNode, { nodeType }];
       case 'RegExp':
-        return [RegExpNode];
+        return [RegExpNode, {}];
       default:
         return [JSONObjectNode, { summary: nodeType }];
     }
