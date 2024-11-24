@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { useState } from './utils/context';
+  import { getContext } from 'svelte';
 
+  // Props with TypeScript types
   export let list:
     | Array<unknown>
     | Int8Array
@@ -15,32 +16,55 @@
     | BigInt64Array
     | BigUint64Array;
   export let hasMore: boolean;
-  export let label: string = undefined;
-  export let prefix: string = undefined;
-  export let postfix: string = undefined;
+  export let label: string | undefined = undefined;
+  export let prefix: string | undefined = undefined;
+  export let postfix: string | undefined = undefined;
   export let root: boolean = false;
   
-  const { showPreview } = useState();
+  // Get context
+  type JsonViewerContext = {
+    showPreview: boolean;
+  };
+  
+  const { showPreview } = getContext<JsonViewerContext>('jsonViewer');
 </script>
 
 {#if root || showPreview}
-  {#if prefix}{#if label}<span class="label">{label}</span>{/if}<span class="operator">{prefix}</span>{/if}
+  {#if prefix}
+    {#if label}
+      <span class="label">{label}</span>
+    {/if}
+    <span class="operator">{prefix}</span>
+  {/if}
+  
   {#each list as item, index}
     <slot name="item" {item} {index} />
     {#if index < list.length - 1}
       <span class="comma operator">,</span>
     {/if}
   {/each}
+  
   {#if hasMore}
     <span class="comma operator">,</span>
     <span class="operator">…</span>
   {/if}
-  {#if postfix}<span class="operator">{postfix}</span>{/if}
+  
+  {#if postfix}
+    <span class="operator">{postfix}</span>
+  {/if}
 {/if}
 
 <style>
   .comma {
     margin-left: -0.5em;
     margin-right: 0.5em;
+  }
+  
+  .operator {
+    color: var(--operator-color, inherit);
+  }
+  
+  .label {
+    color: var(--label-color, inherit);
   }
 </style>
