@@ -1,23 +1,26 @@
 <script lang="ts">
   import JSONNode from './JSONNode.svelte';
-  import { useState } from './utils/context';
-  import { readable } from 'svelte/store';
   import Expandable from './Expandable.svelte';
   import { getShouldExpandNode } from './utils/expand';
 
+  // Props
   export let value: unknown;
   export let shouldShowPreview: boolean = true;
   export let shouldTreatIterableAsObject: boolean = false;
   export let defaultExpandedPaths: string[] = [];
   export let defaultExpandedLevel: number = 0;
 
-  $: expandable = value && typeof value === 'object'
-  $: shouldExpandNode = getShouldExpandNode({ defaultExpandedPaths, defaultExpandedLevel });
+  // State
+  let expanded = $state(true);
+  
+  // Derived values
+  $derived(expandable = value && typeof value === 'object');
+  $derived(shouldExpandNode = getShouldExpandNode({ defaultExpandedPaths, defaultExpandedLevel }));
 
-  const expanded = $state(true);
-  useState({
+  // Context values - using Svelte 5's new context system
+  const context = $state({
     expanded,
-    isParentExpanded: readable(true),
+    isParentExpanded: true,  // Previously a readable store, now just a boolean
     root: true,
     shouldExpandNode: (opts) => shouldExpandNode(opts),
     level: 0,
@@ -25,11 +28,16 @@
     showPreview: shouldShowPreview,
     shouldTreatIterableAsObject,
   });
+
+  // Replace useState with setContext
+  $effect(() => {
+    setContext('json-tree', context);
+  });
 </script>
 
 <div class:expandable>
   {#if expandable}
-    <Expandable key="$" {expanded}>
+    <Expandable key="$" expanded={$expanded}>
       <JSONNode {value} />
     </Expandable>
   {:else if typeof value === 'string'}
@@ -70,7 +78,6 @@
     padding: 0;
     margin: 0;
   }
-
   .expandable {
     margin-left: var(--li-identation);
   }
