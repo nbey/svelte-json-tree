@@ -1,7 +1,7 @@
 <script lang="ts">
   import JSONNode from './JSONNode.svelte';
   import { useState } from './utils/context';
-  import { readable, writable } from 'svelte/store';
+  import { readable } from 'svelte/store';
   import Expandable from './Expandable.svelte';
   import { getShouldExpandNode } from './utils/expand';
 
@@ -14,7 +14,7 @@
   $: expandable = value && typeof value === 'object'
   $: shouldExpandNode = getShouldExpandNode({ defaultExpandedPaths, defaultExpandedLevel });
 
-  const expanded = writable(true);
+  const expanded = $state(true);
   useState({
     expanded,
     isParentExpanded: readable(true),
