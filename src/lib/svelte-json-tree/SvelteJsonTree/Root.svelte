@@ -32,7 +32,7 @@
 
   // Replace useState with setContext
   $effect(() => {
-    setContext('json-tree', context);
+    setContext('jsonViewer', context);
   });
 </script>
 
